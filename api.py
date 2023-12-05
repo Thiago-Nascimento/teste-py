@@ -42,7 +42,11 @@ container_imagens = get_azure_container_client()
 
 app = Flask(__name__)
 
-@app.post("/login")
+@app.route("/", methods=["GET"])
+def hello_world():
+    return "Hello World!"
+
+@app.route("/login", methods=["POST"])
 def login_post():
     # Salva imagem vinda da requisição
     file = request.files['imagem']
@@ -75,7 +79,7 @@ def login_post():
         resultado_comparacao = face_recognition.compare_faces([encoding_imagem_blob], encoding_imagem_requisicao)
 
         # Se match -> retornar 200 e nome da imagem
-        if resultado_comparacao:
+        if resultado_comparacao[0]:
             # Rosto corresponde à base
             body = "{ 'nomeImagem': '%s' }"%file.filename
 
@@ -95,12 +99,3 @@ def login_post():
     # print(body)
 
     return Response("Usuario não encontrado", status=404)
-
-@app.get("/imagens")
-def listar_img():    
-    lista_blobs = carregar_lista_imagens(container_imagens)
-
-    for blob in lista_blobs:
-        print(blob.name)
-
-    return "lista de imagens"
